@@ -11,13 +11,11 @@ release = '1'
 # acceptable version schema: major.minor[.patch][sub]
 __version__ = '.'.join([version, release])
 __pkg__ = 'rafflepy'
-__pkgdir__ = {'rafflepy': 'src/rafflepy'}
-__pkgs__ = [
-    'rafflepy',
-]
+__pkgdir__ = {'rafflepy': 'rafflepy'}
+__pkgs__ = ['rafflepy', ]
 __provides__ = ['rafflepy']
 __desc__ = 'Randomly select a WINNER from a list of candidates.'
-__scripts__ = ['src/rafflepy']
+__scripts__ = ['bin/rafflepy']
 __irequires__ = []
 pip_src = 'https://pypi.python.org/packages/src'
 __deplinks__ = []
@@ -32,7 +30,7 @@ download_url = '%s/archive/master.zip' % github
 
 default_setup = dict(
     url=github,
-    license='GPLv2',
+    license='GPLv3',
     author='Chris Ward',
     author_email='kejbaly2@gmail.com',
     maintainer='Chris Ward',

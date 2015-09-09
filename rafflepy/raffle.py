@@ -31,36 +31,30 @@ Quickly select a random set of winners from a pool of candidates.
 
 from __future__ import unicode_literals, absolute_import
 
-import argparse
 import csv
 import os
-import random
 import re
+from df2gspread import gspread2df
 
-import raffle
+is_local_file = re.compile('^(file://)?(\/?.+)$')
 
-def main():
-    parser = argparse.ArgumentParser(description='Process input')
-    parser.add_argument('uri',
-                        help='source to build candidate pool from')
-    parser.add_argument('-c', '--column', default='Username',
-                        help='which column to extract data from')
-    parser.add_argument('-w', '--count', type=int, default=1,
-                        help='number of winners to draw')
-    parser.add_argument('-x', '--exclude', nargs='+',
-                        help='names to exclude from the raffle drawing')
+def input_gload(uri, column='Username', wks_name='Sheet1'):
+    df = gspread2df.export(uri, wks_name, col_names=True)
+    pool = df[column]
+    return pool.values
 
-    args = parser.parse_args()
-
-    pool = raffle.input_load(args.uri, column=args.column)
-    pool = raffle.input_filter(pool, args.exclude)
-
-    winner = ', '.join(random.sample(pool, args.count))
-
-    print('Selecting winner(s) from {} candidates...'.format(len(pool)))
-    announce = 'And the winner(s) are... {}! Congrats!'.format(winner)
-    print(announce)
+def input_load(uri, column='Username'):
+    uri = os.path.expanduser(uri)
+    protocol, uri = is_local_file.match(uri).groups()
+    if not protocol:
+        f = open(uri)
+        pool = [r[column] for r in csv.DictReader(f)]
+    else:
+        raise RuntimeError
+    return pool
 
 
-if __name__ == "__main__":
-    main()
+def input_filter(pool, exclude):
+    pool = set(pool or [])
+    exclude = set(exclude or [])
+    return pool - exclude

@@ -1,0 +1,87 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+#   raffle - Easily select a winner!
+#   Author: Chris Ward <kejbaly2@gmail.com>
+#
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+#   Copyright (c) 2015 Chris Ward. All rights reserved.
+#
+#   This copyrighted material is made available to anyone wishing
+#   to use, modify, copy, or redistribute it subject to the terms
+#   and conditions of the GNU General Public License version 2.
+#
+#   This program is distributed in the hope that it will be
+#   useful, but WITHOUT ANY WARRANTY; without even the implied
+#   warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+#   PURPOSE. See the GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public
+#   License along with this program; if not, write to the Free
+#   Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+#   Boston, MA 02110-1301, USA.
+#
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+"""
+Quickly select a random set of winners from a pool of candidates.
+"""
+
+from __future__ import unicode_literals, absolute_import
+
+import argparse
+import csv
+import os
+import random
+import re
+
+from rafflepy.raffle import *
+# import raffle
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Process input')
+    subparsers = parser.add_subparsers(help='Datasources', dest='src')
+
+    gspread = subparsers.add_parser('gspread')
+    gspread.add_argument('uri',
+                         help='source to build candidate pool from')
+    gspread.add_argument('-wks', '--worksheet', nargs='?',
+                         help='Worksheet name')
+
+    csv_file = subparsers.add_parser('csv')
+    csv_file.add_argument('uri',
+                          help='source to build candidate pool from')
+
+    parser.add_argument('-c', '--column', default='Username',
+                        help='which column to extract data from')
+    parser.add_argument('-w', '--count', type=int, default=1,
+                        help='number of winners to draw')
+    parser.add_argument('-x', '--exclude', nargs='+',
+                        help='names to exclude from the raffle drawing')
+
+    args = vars(parser.parse_args())
+    src = args['src']  # what data source are we targetting?
+
+    if src == 'gspread':
+        wks = args.get('worksheet')
+        column = args.get('column')
+        pool = input_gload(args.get('uri'), column=column, wks_name=wks)
+    elif src == 'csv_file':
+        pool = input_load(args.uri, column=args.column)
+
+    exlude_list = args.get('exclude')
+    if exlude_list:
+        pool = input_filter(pool, exlude_list)
+
+    winner = ', '.join(random.sample(pool, args.get('count')))
+
+    print('Selecting winner(s) from {} candidates...'.format(len(pool)))
+    announce = 'And the winner(s) are... {}! Congrats!'.format(winner)
+    print(announce)
+
+
+if __name__ == "__main__":
+    main()
