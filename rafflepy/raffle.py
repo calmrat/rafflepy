@@ -38,10 +38,12 @@ from df2gspread import gspread2df
 
 is_local_file = re.compile('^(file://)?(\/?.+)$')
 
-def input_gload(uri, column='Username', wks_name='Sheet1'):
-    df = gspread2df.export(uri, wks_name, col_names=True)
+
+def input_gload(uri, column='Username', wks_name=None):
+    df = gspread2df.download(uri, wks_name, col_names=True)
     pool = df[column]
     return pool.values
+
 
 def input_load(uri, column='Username'):
     uri = os.path.expanduser(uri)
