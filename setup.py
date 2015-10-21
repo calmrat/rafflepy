@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 # Author: "Chris Ward" <cward@redhat.com>
 
-import re
 from setuptools import setup
 
 version = '0.1'
@@ -16,7 +15,7 @@ __pkgs__ = ['rafflepy', ]
 __provides__ = ['rafflepy']
 __desc__ = 'Randomly select a WINNER from a list of candidates.'
 __scripts__ = ['bin/rafflepy']
-__irequires__ = []
+__irequires__ = ['df2gspread']
 pip_src = 'https://pypi.python.org/packages/src'
 __deplinks__ = []
 
