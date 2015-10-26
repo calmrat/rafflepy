@@ -16,6 +16,13 @@ __provides__ = ['rafflepy']
 __desc__ = 'Randomly select a WINNER from a list of candidates.'
 __scripts__ = ['bin/rafflepy']
 __irequires__ = ['df2gspread']
+__xrequires__ = {
+    'tests': [
+        'pytest==2.7.2',
+        'instructions',
+        'pytest-pep8==1.0.6',  # run with `py.test --pep8 ...`
+    ]
+}
 pip_src = 'https://pypi.python.org/packages/src'
 __deplinks__ = []
 
@@ -48,6 +55,7 @@ default_setup = dict(
     dependency_links=__deplinks__,
     description=__desc__,
     install_requires=__irequires__,
+    extras_require=__xrequires__,
     name=__pkg__,
     package_dir=__pkgdir__,
     packages=__pkgs__,
