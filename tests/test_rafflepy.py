@@ -4,7 +4,7 @@
 # @Date:   2015-09-17 11:41:28
 # @Email:  etrott@redhat.com
 # @Last modified by:   etrott
-# @Last Modified time: 2015-09-17 11:42:44
+# @Last Modified time: 2015-11-20 15:55:47
 
 
 from __future__ import unicode_literals, absolute_import
@@ -19,17 +19,19 @@ def test_global_import():
     import rafflepy
 
 
-@pytest.mark.xfail(reason="Credentials")
+@pytest.mark.xfail(reason="df2gspread")
 def test_gspread_load():
     import random
     import string
-
-    import pandas as pd
-    from df2gspread import df2gspread as d2g
-    from df2gspread import gspread2df as g2d
-    from df2gspread.utils import get_credentials
-    from df2gspread.gfiles import get_file_id
-    from df2gspread.gfiles import delete_file
+    try:
+        import pandas as pd
+        from df2gspread import df2gspread as d2g
+        from df2gspread import gspread2df as g2d
+        from df2gspread.utils import get_credentials
+        from df2gspread.gfiles import get_file_id
+        from df2gspread.gfiles import delete_file
+    except:
+        assert 0
 
     from rafflepy import raffle
 
@@ -60,10 +62,10 @@ def test_gspread_load():
     # Clear created file from drive
     delete_file(credentials, file_id)
 
-
+@pytest.mark.xfail(reason="pandas")
 def test_csv_load():
     import os
-
+    # FIXME: include pandas to test xrequires?
     import pandas as pd
 
     from rafflepy import raffle

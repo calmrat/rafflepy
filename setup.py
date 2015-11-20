@@ -15,9 +15,11 @@ __pkgs__ = ['rafflepy', ]
 __provides__ = ['rafflepy']
 __desc__ = 'Randomly select a WINNER from a list of candidates.'
 __scripts__ = ['bin/rafflepy']
-__irequires__ = ['df2gspread']
+__irequires__ = []
 __xrequires__ = {
+    'gspread': ['df2gspread'],
     'tests': [
+        'pandas',
         'pytest==2.7.2',
         'instructions',
         'pytest-pep8==1.0.6',  # run with `py.test --pep8 ...`
