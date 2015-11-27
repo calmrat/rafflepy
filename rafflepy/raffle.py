@@ -34,12 +34,18 @@ from __future__ import unicode_literals, absolute_import
 import csv
 import os
 import re
-from df2gspread import gspread2df
+
+try:
+    from df2gspread import gspread2df
+except:
+    df2gspread = None    
 
 is_local_file = re.compile('^(file://)?(\/?.+)$')
 
 
 def input_gload(uri, column='Username', wks_name=None):
+    if not df2gspread:
+        raise RuntimeError('df2gspread is not installed')
     df = gspread2df.download(uri, wks_name, col_names=True)
     pool = df[column]
     return pool.values

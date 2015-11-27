@@ -68,8 +68,8 @@ def main():
         wks = args.get('worksheet')
         column = args.get('column')
         pool = input_gload(args.get('uri'), column=column, wks_name=wks)
-    elif src == 'csv_file':
-        pool = input_load(args.uri, column=args.column)
+    elif src == 'csv':
+        pool = input_load(args.get('uri'), column=args.get('column'))
 
     exlude_list = args.get('exclude')
     if exlude_list:
