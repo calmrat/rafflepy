@@ -47,7 +47,7 @@ def main():
     gspread = subparsers.add_parser('gspread')
     gspread.add_argument('uri',
                          help='source to build candidate pool from')
-    gspread.add_argument('-wks', '--worksheet', nargs='?',
+    gspread.add_argument('-s', '--worksheet', nargs='?',
                          help='Worksheet name')
 
     csv_file = subparsers.add_parser('csv')
@@ -75,11 +75,19 @@ def main():
     if exlude_list:
         pool = input_filter(pool, exlude_list)
 
-    winner = ', '.join(random.sample(pool, args.get('count')))
+    # filter empty
+    pool = [x for x in pool if x.strip()]
 
-    print('Selecting winner(s) from {} candidates...'.format(len(pool)))
-    announce = 'And the winner(s) are... {}! Congrats!'.format(winner)
-    print(announce)
+    k = args.get('count') or 1
+    winner = ', '.join(random.sample(pool, k))
+
+    if k > 1:
+        msg = 'Selecting winner(s) from {} candidates...'.format(len(pool))
+        announce = '\n ... and the winner(s) are... {}! Congrats!'.format(winner)
+    else:
+        msg = 'Selecting winner from {} candidates...'.format(len(pool))
+        announce = '\n ... and the winner is... {}! Congrats!'.format(winner)
+    print(msg + announce)
 
 
 if __name__ == "__main__":
