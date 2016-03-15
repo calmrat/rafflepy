@@ -40,7 +40,7 @@ import re
 from rafflepy.raffle import *
 
 
-def main():
+def parse_cli():
     parser = argparse.ArgumentParser(description='Process input')
     subparsers = parser.add_subparsers(help='Datasources', dest='src')
 
@@ -60,9 +60,16 @@ def main():
                         help='number of winners to draw')
     parser.add_argument('-x', '--exclude', nargs='+',
                         help='names to exclude from the raffle drawing')
+    parser.add_argument('-C', '--casino', action='store_true',
+                        help='casino cli style')
 
-    args = vars(parser.parse_args())
+    return vars(parser.parse_args())
+
+
+def main():
+    args = parse_cli()
     src = args['src']  # what data source are we targetting?
+    is_casino = args['casino']
 
     if src == 'gspread':
         wks = args.get('worksheet')
@@ -79,15 +86,55 @@ def main():
     pool = [x for x in pool if x.strip()]
 
     k = args.get('count') or 1
-    winner = ', '.join(random.sample(pool, k))
+    if k > len(pool): k = len(pool)
 
     if k > 1:
-        msg = 'Selecting winner(s) from {} candidates...'.format(len(pool))
-        announce = '\n ... and the winner(s) are... {}! Congrats!'.format(winner)
+        print('Selecting winners from {} candidates...\n'.format(len(pool)))
+        if is_casino:
+            winner = []
+            for _ in range(k):
+                user = select_winner(pool)
+                pool.remove(user)
+                winner.append(user)
+            winner = ', '.join(winner)
+        else:
+            winner = ', '.join(random.sample(pool, k))
+        announce = '\n ... and the winners are... {}! Congrats!'.format(winner)
     else:
-        msg = 'Selecting winner from {} candidates...'.format(len(pool))
+        print('Selecting winner from {} candidates...'.format(len(pool)))
+        if is_casino:
+            winner = select_winner(pool)
+        else:
+            winner = ', '.join(random.sample(pool, k))
         announce = '\n ... and the winner is... {}! Congrats!'.format(winner)
-    print(msg + announce)
+
+    print(announce)
+
+
+def input_thread(l):
+    """ Stop sampling on enter press """
+    raw_input()
+    l.append(None)
+
+
+def select_winner(pool):
+
+    import itertools
+    import sys
+    import time
+    import thread
+    spinner = itertools.cycle(pool)
+    l = []
+    max_len = max([len(w) for w in pool])
+    pad = " " * max_len
+    thread.start_new_thread(input_thread, (l,))
+    while not l:
+        candidate = spinner.next()
+        sys.stdout.write('%s\r' % pad)
+        sys.stdout.write("%s\r" % candidate)  # write the next character
+        sys.stdout.flush()                # flush stdout buffer (actual character display)
+        time.sleep(0.1)
+    return candidate
 
 
 if __name__ == "__main__":
