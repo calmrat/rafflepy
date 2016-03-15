@@ -60,6 +60,10 @@ def parse_cli():
                         help='number of winners to draw')
     parser.add_argument('-x', '--exclude', nargs='+',
                         help='names to exclude from the raffle drawing')
+    parser.add_argument('-i', '--infinite', action='store_true',
+                        help='let user win more than once')
+    parser.add_argument('-e', '--equalize', action='store_true',
+                        help='equalizes chances of winning')
     parser.add_argument('-C', '--casino', action='store_true',
                         help='casino cli style')
 
@@ -72,9 +76,13 @@ def main():
     is_casino = args['casino']
 
     if is_casino:
+        global itertools
         import itertools
+        global sys
         import sys
+        global time
         import time
+        global thread
         import thread
 
     if src == 'gspread':
@@ -92,21 +100,30 @@ def main():
     pool = [x for x in pool if x.strip()]
 
     k = args.get('count') or 1
-    # if count of winners larger than count of participants then reduce k
-    if k > len(pool):
+
+    if args['equalize']:
+        pool = list(set(pool))
+        # if count of winners larger than count of participants then reduce k
+    if not args['infinite'] and k > len(pool):
         k = len(pool)
 
     if k > 1:
-        print('Selecting winners from {} candidates...\n'.format(len(pool)))
+        print('Selecting {} winners from {} candidates...\n'.format(k, len(pool)))
         if is_casino:
             winner = []
             for _ in range(k):
+                random.shuffle(pool)
                 user = select_winner(pool)
-                pool.remove(user)
+                if not args['infinite']:
+                    pool.remove(user)
                 winner.append(user)
             winner = ', '.join(winner)
         else:
-            winner = ', '.join(random.sample(pool, k))
+            if not args['infinite']:
+                winner = ', '.join(random.sample(pool, k))
+            else:
+                winner = ', '.join([random.sample(pool, 1)[0]
+                                    for _ in range(k)])
         announce = '\n ... and the winners are... {}! Congrats!'.format(winner)
     else:
         print('Selecting winner from {} candidates...'.format(len(pool)))
