@@ -71,6 +71,12 @@ def main():
     src = args['src']  # what data source are we targetting?
     is_casino = args['casino']
 
+    if is_casino:
+        import itertools
+        import sys
+        import time
+        import thread
+
     if src == 'gspread':
         wks = args.get('worksheet')
         column = args.get('column')
@@ -86,7 +92,9 @@ def main():
     pool = [x for x in pool if x.strip()]
 
     k = args.get('count') or 1
-    if k > len(pool): k = len(pool)
+    # if count of winners larger than count of participants then reduce k
+    if k > len(pool):
+        k = len(pool)
 
     if k > 1:
         print('Selecting winners from {} candidates...\n'.format(len(pool)))
@@ -118,11 +126,6 @@ def input_thread(l):
 
 
 def select_winner(pool):
-
-    import itertools
-    import sys
-    import time
-    import thread
     spinner = itertools.cycle(pool)
     l = []
     max_len = max([len(w) for w in pool])
